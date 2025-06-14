@@ -1,10 +1,19 @@
 #!/bin/bash
 
-# Параметры
-CONTAINER_NAME="test-container"
-IMAGE="ubuntu:24.04"
-GITHUB_SCRIPT_URL="https://raw.githubusercontent.com/lessonssccn/setup_venv/refs/heads/main/setup_venv.sh" 
-SCRIPT_PATH="./setup_venv.sh"
+# Подключаем конфиг
+CONFIG_FILE="config.env"
+
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+else
+    echo "Конфигурационный файл $CONFIG_FILE не найден!"
+    exit 1
+fi
+
+echo "Container name: $CONTAINER_NAME"
+echo "Image: $IMAGE"
+echo "Script URL: $GITHUB_SCRIPT_URL"
+echo "Local script path: $SCRIPT_PATH"
 
 # Флаги
 INTERACTIVE_MODE=false

@@ -9,6 +9,7 @@ LOG_OUTPUT="/dev/tty"
 APT_UPDATED=false
 INSTALL_UTILS=false
 INSTALL_LOCALE_ONLY=false
+INSTALL_PIP=false
 
 # === Цвета для вывода ===
 RED='\033[0;31m'
@@ -39,6 +40,7 @@ show_help() {
     echo "  -i|--install        Установить системные утилиты"
     echo "  -l|--locale         Настроить локаль"
     echo "  -f|--full           Полная установка (--install + --locale)"
+    echo "  -p|--pip            Установка системного pip"
     echo "  -q|--quiet          Без вывода лога процесса установки только шаги"
     exit 0
 }
@@ -135,6 +137,7 @@ while [[ "$#" -gt 0 ]]; do
         -h|--help) show_help ;;
         -i|--install) INSTALL_UTILS=true ;;
         -l|--locale) INSTALL_LOCALE_ONLY=true ;;
+        -p|--pip) INSTALL_PIP=true ;;
         -f|--full)
             INSTALL_UTILS=true
             INSTALL_LOCALE_ONLY=true
@@ -157,7 +160,14 @@ if [ "$INSTALL_UTILS" = true ]; then
 
     install_package "$PYTHON_VERSION"
     install_package "$PYTHON_VERSION-venv"
+fi
+
+# Установка pip только если указан флаг --pip
+if [ "$INSTALL_PIP" = true ]; then
+    echo "[*] Устанавливается python3-pip..."
     install_package "python3-pip"
+else
+    echo "[*] Установка pip пропущена (--pip не указан)"
 fi
 
 ensure_python
