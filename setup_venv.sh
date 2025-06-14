@@ -80,6 +80,19 @@ install_package() {
     fi
 }
 
+# === Функция: гарантируем установку python3.12 и получаем его полный путь ===
+ensure_python() {
+    echo -e "${BLUE}🔍 Проверяю установку $PYTHON_VERSION ...${NC}"
+    if ! command -v $PYTHON_VERSION &>/dev/null; then
+        echo -e "${RED}❌ $PYTHON_VERSION не найден. Используйте флаг --install для установки.${NC}"
+        exit 1
+    fi
+
+    PYTHON_BIN=$(command -v $PYTHON_VERSION)
+    export PYTHON_BIN
+    echo -e "${GREEN}✅ Найден $PYTHON_VERSION по пути: $PYTHON_BIN${NC}"
+}
+
 # === Функция: очистка системы после установки пакетов ===
 cleanup_apt() {
     if [ "$APT_UPDATED" = true ]; then
@@ -143,9 +156,11 @@ if [ "$INSTALL_UTILS" = true ]; then
     echo -e "${BLUE}🔧 Запускаю установку утилит...${NC}"
 
     install_package "$PYTHON_VERSION"
-    install_package "python3-venv"
+    install_package "$PYTHON_VERSION-venv"
     install_package "python3-pip"
 fi
+
+ensure_python
 
 # === Установка локали ===
 if [ "$INSTALL_LOCALE_ONLY" = true ]; then
@@ -167,13 +182,7 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
     # Проверяем наличие окружения
     if [ ! -d "$VENV_DIR" ]; then
         echo -e "${BLUE}🔄 Создаю новое виртуальное окружение в папке '$VENV_DIR' (попытка $RETRY_COUNT)${NC}"
-
-        if ! command -v "$PYTHON_VERSION" &> /dev/null; then
-            echo -e "${RED}❌ Python $PYTHON_VERSION не установлен. Используйте --install для его установки.${NC}"
-            exit 1
-        fi
-
-        "$PYTHON_VERSION" -m venv "$VENV_DIR"
+        "$PYTHON_BIN" -m venv "$VENV_DIR"
     else
         echo -e "${BLUE}🔄 Использую существующее виртуальное окружение (попытка $RETRY_COUNT)${NC}"
     fi
